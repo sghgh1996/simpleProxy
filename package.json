@@ -2,14 +2,18 @@
   "name": "simplenodeproxy",
   "version": "1.0.0",
   "description": "This is a simple proxy http server with nodejs.",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
   },
   "author": "sadjad-ghanbary",
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.2",
     "request": "^2.85.0"
+  },
+  "devDependencies": {
+    "electron": "^1.8.3"
   }
 }
