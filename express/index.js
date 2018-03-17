@@ -12,6 +12,7 @@ module.exports = () => {
     const checkReservedUrl = (url)=>{
         let reservedUrl = [
             '/get_groups',
+            '/get_group',
             '/get_websites',
             '/get_website',
             '/add_group',
@@ -105,7 +106,29 @@ module.exports = () => {
             resp.send(JSON.stringify(result));
         });
     });
-    
+    app.get('/get_group/:id', function (req, resp) {
+        fs.readFile('./express/groups.txt', function(err, buf) {
+            if(err) console.log(err);
+            let result = {};
+            let websites = JSON.parse(buf.toString()).websites;
+            let groups = JSON.parse(buf.toString()).groups;
+            let dataReceivedInGroup = 0;
+            
+            groups.map(function (g) {
+                if(g.id === parseInt(req.params.id, 10)){
+                    result = g;
+                }
+            });
+            websites.map(function (w) {
+                if(w.group_id === result.id){
+                    dataReceivedInGroup += w.dataReceived;
+                }
+            });
+            result.dataReceived = dataReceivedInGroup;
+            resp.send(JSON.stringify(result));
+        });
+    });
+
     app.post('/add_group', function (req, resp) {
         fs.readFile('./express/groups.txt', function(err, buf) {
             if(err) console.log(err);
