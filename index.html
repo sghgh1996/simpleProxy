@@ -2,15 +2,37 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <title>my node proxy</title>
 </head>
 <body>
-<h1>Hello World!</h1>
+<h2 style="text-align: center">my node proxy</h2>
 <div>
-    welcome to my proxy
+    <button id="websites">websites</button>
 </div>
+<div>
+    <button>groups</button>
+</div>
+<div id="div-websites"></div>
 We are using node <script>document.write(process.versions.node)</script>,
 Chrome <script>document.write(process.versions.chrome)</script>,
 and Electron <script>document.write(process.versions.electron)</script>.
+<script type="text/javascript">
+    window.$ = window.jQuery = require('jquery');
+    $(document).ready(function () {
+        $('#websites').on('click', function () {
+            $.ajax({
+                url: 'http://127.0.0.1:8080/get_groups',
+                type: "get",
+                contentType: "application/json",
+                success: function (response){
+                    $('#div-websites').text(response);
+                },
+                error: function (error) {
+
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

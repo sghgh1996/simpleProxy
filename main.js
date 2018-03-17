@@ -4,17 +4,6 @@ const url = require('url');
 const express = require('./express/index.js'); //your express app
 let mainWindow;
 
-// function createWindow () {
-//     // Create the browser window.
-//     win = new BrowserWindow({width: 800, height: 600});
-//
-//     // and load the index.html of the app.
-
-// }
-//
-// app.on('ready', createWindow);
-
-
 app.on('ready', function() {
     express();
     mainWindow = new BrowserWindow({
