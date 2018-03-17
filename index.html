@@ -10,7 +10,7 @@
     <button id="websites">websites</button>
 </div>
 <div>
-    <button>groups</button>
+    <button id="groups">groups</button>
 </div>
 <div id="div-websites"></div>
 We are using node <script>document.write(process.versions.node)</script>,
@@ -26,6 +26,26 @@ and Electron <script>document.write(process.versions.electron)</script>.
                 contentType: "application/json",
                 success: function (response){
                     $('#div-websites').text(response);
+                },
+                error: function (error) {
+
+                }
+            });
+        });
+        $('#groups').on('click', function () {
+            let request = {
+                id:7,
+                address:'asriran2.com',
+                group_id: 2
+            };
+            $.ajax({
+                url: 'http://127.0.0.1:8080/edit_website',
+                type: "put",
+                contentType: "application/json",
+                dataType:'json',
+                data: JSON.stringify(request),
+                success: function (response){
+
                 },
                 error: function (error) {
 
