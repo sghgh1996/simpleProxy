@@ -11,13 +11,13 @@
     <div class="column" data-div="groups-div">
         col1
     </div><!--
-    --><div class="column">
+    --><div class="column" data-div="group-div">
         col2
     </div><!--
     --><div class="column" data-div="websites-div">
         col3
     </div><!--
-    --><div class="column">
+    --><div class="column" data-div="website-div">
         col4
     </div>
 </div>
@@ -31,6 +31,9 @@ and Electron <script>document.write(process.versions.electron)</script>.
     $(document).ready(function () {
         // Variables
         var groupsDiv = $('div[data-div="groups-div"]');
+        var websitesDiv = $('div[data-div="websites-div"]');
+        var websiteDiv = $('div[data-div="website-div"]');
+        var groupDiv = $('div[data-div="group-div"]');
 
         // Get all groups.
         $.ajax({
@@ -53,8 +56,6 @@ and Electron <script>document.write(process.versions.electron)</script>.
 
 //        For dynamically added DOM
         function addEventsForGroupItems() {
-            var websitesDiv = $('div[data-div="websites-div"]');
-
 //            Get all websites of a group after click on that.
             $('li.groupItem').on('click', function () {
                 let groupId = $(this).attr('data-group-id');
@@ -70,6 +71,33 @@ and Electron <script>document.write(process.versions.electron)</script>.
                         });
                         resultHtml += '</ul>';
                         websitesDiv.html(resultHtml);
+                    },
+                    error: function (error) {
+                        alert(JSON.stringify(error));
+                    }
+                });
+                $.ajax({
+                    url: 'http://127.0.0.1:8080/get_group/'+groupId,
+                    type: "get",
+                    contentType: "application/json",
+                    success: function (response){
+                        let resultHtml = '<h5>'+groupName+'</h5>';
+                        let group = JSON.parse(response);
+                        resultHtml += '<p>Data Usage:<br/>'+group.dataReceived+' Bytes</p>';
+
+                        resultHtml += '<div class="btnDelete" data-div="delete-group" data-group-id="'+group.id+'">Delete</div>';
+
+                        resultHtml += '<div>';
+                        resultHtml += '<span>name: </span><input name="name" data-input="edit-group-name"/>';
+                        resultHtml += '</div>';
+                        resultHtml += '<div class="btnEdit" data-div="edit-group" data-group-id="'+group.id+'">Edit</div>';
+
+                        resultHtml += '<div>';
+                        resultHtml += '<span>name: </span><input name="name" data-input="add-group-name"/>';
+                        resultHtml += '</div>';
+                        resultHtml += '<div class="btnAdd" data-div="add-group" data-group-id="'+group.id+'">Add</div>';
+
+                        groupDiv.html(resultHtml);
                     },
                     error: function (error) {
                         alert(JSON.stringify(error));
