@@ -3,22 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <title>my node proxy</title>
+    <link rel="stylesheet" href="index.css"/>
 </head>
 <body>
 <h2 style="text-align: center">my node proxy</h2>
-<div>
-    <button id="websites">websites</button>
-</div>
-<div>
-    <button id="groups">groups</button>
+<div class="section">
+    <div class="column" data-div="groups-div">
+        col1
+    </div><!--
+    --><div class="column">
+        col2
+    </div><!--
+    --><div class="column" data-div="websites-div">
+        col3
+    </div><!--
+    --><div class="column">
+        col4
+    </div>
 </div>
 <div id="div-websites"></div>
+
 We are using node <script>document.write(process.versions.node)</script>,
 Chrome <script>document.write(process.versions.chrome)</script>,
 and Electron <script>document.write(process.versions.electron)</script>.
 <script type="text/javascript">
     window.$ = window.jQuery = require('jquery');
     $(document).ready(function () {
+        // Variables
+        var groupsDiv = $('div[data-div="groups-div"]');
+
+        // Get all groups.
+        $.ajax({
+            url: 'http://127.0.0.1:8080/get_groups',
+            type: "get",
+            contentType: "application/json",
+            success: function (response){
+                let resultHtml = '<h5>Groups List</h5><ul>';
+                $.each(JSON.parse(response), function(key, value) {
+                    resultHtml += '<li class="groupItem" data-group-id="'+value.id+'">'+value.name+'</li>';
+                });
+                resultHtml += '</ul>';
+                groupsDiv.html(resultHtml);
+                addEventsForGroupItems();
+            },
+            error: function (error) {
+                alert(JSON.stringify(error));
+            }
+        });
+
+//        For dynamically added DOM
+        function addEventsForGroupItems() {
+            var websitesDiv = $('div[data-div="websites-div"]');
+
+//            Get all websites of a group after click on that.
+            $('li.groupItem').on('click', function () {
+                let groupId = $(this).attr('data-group-id');
+                let groupName = $(this).text();
+                $.ajax({
+                    url: 'http://127.0.0.1:8080/get_websites/'+groupId,
+                    type: "get",
+                    contentType: "application/json",
+                    success: function (response){
+                        let resultHtml = '<h5>Websites List of<br/>'+groupName+'</h5><ul>';
+                        $.each(JSON.parse(response), function(key, value) {
+                            resultHtml += '<li class="websiteItem" data-website-id="'+value.id+'">'+value.address+'</li>';
+                        });
+                        resultHtml += '</ul>';
+                        websitesDiv.html(resultHtml);
+                    },
+                    error: function (error) {
+                        alert(JSON.stringify(error));
+                    }
+                });
+            });
+        }
+
+
+
+
+
         $('#websites').on('click', function () {
             $.ajax({
                 url: 'http://127.0.0.1:8080/get_groups',

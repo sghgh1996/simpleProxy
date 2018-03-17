@@ -7,8 +7,8 @@ let mainWindow;
 app.on('ready', function() {
     express();
     mainWindow = new BrowserWindow({
-        width: 720,
-        height: 600,
+        width: 900,
+        height: 560,
         autoHideMenuBar: true,
         useContentSize: true,
         resizable: false

@@ -1,0 +1,40 @@
+body{
+    margin:0;
+    padding:0;
+    font-size: 18px;
+}
+ul {
+    list-style-type: none;
+    margin:0;
+    padding: 0;
+}
+li {
+    padding: 3px;
+}
+.section{
+    display: table;
+    width:90%;
+    margin:20px auto;
+}
+.column{
+    text-align: center;
+    display: table-cell;
+    margin:20px 0;
+}
+.column:nth-child(even){
+    width: 30%;
+    background-color: aquamarine;
+}
+.column:nth-child(odd){
+    width: 20%;
+    background-color: antiquewhite;
+}
+.column h5{
+    margin-bottom: 3px;
+    margin-top: 3px;
+    border-bottom: 1px solid darkblue;
+    padding-bottom: 3px;
+}
+.groupItem:hover{
+    cursor: pointer;
+}
