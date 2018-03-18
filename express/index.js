@@ -20,7 +20,9 @@ module.exports = () => {
             '/delete_group',
             '/delete_website',
             '/edit_group',
-            '/edit_website'
+            '/edit_website',
+            '/get_request_log',
+            'get_total_data_received'
         ];
         let result = true;
         reservedUrl.map(function (u) {
@@ -47,32 +49,89 @@ module.exports = () => {
         });
         return maxId + 1;
     };
-    
+    const increaseWebsiteDataReceived = (url, amount)=>{
+        if(amount !== undefined){
+            fs.readFile('./express/groups.txt', function(err, buf) {
+                if(err) console.log(err);
+                let websites = JSON.parse(buf.toString()).websites;
+                let groups = JSON.parse(buf.toString()).groups;
+                websites.map(function (w) {
+                    if(url.includes(w.address)){
+                        let currentData = parseInt(w.dataReceived, 10);
+                        w.dataReceived = currentData + parseInt(amount);
+                    }
+                });
+                let obj = {
+                    groups: groups,
+                    websites: websites
+                };
+                fs.writeFile('./express/groups.txt', JSON.stringify(obj), function(err){
+                    if(err) console.log(err);
+                });
+            });
+        }
+    };
+
+    const addRequestToLog = (url)=>{
+        fs.appendFile('./express/request_log.txt', url.toString()+'\n', function(err){
+            if(err) console.log(err);
+        });
+    };
+
+    const increaseTotalDataReceived = (amount)=>{
+        if(amount !== undefined){
+            fs.readFile('./express/total_data_received.txt', function(err, buf) {
+                if(err) console.log(err);
+                let currentData = parseInt(buf.toString(), 10);
+                currentData = currentData + parseInt(amount, 10);
+                fs.writeFile('./express/total_data_received.txt', currentData, function(err){
+                    if(err) console.log(err);
+                });
+            });
+        }
+    };
+
     http.listen(port, function () {
         console.log('listening on *:' + port);
     });
 
+    // let bool = true;
     app.all('*', function (req, resp, next) {
-        // console.log(req.url);
-
         if(checkReservedUrl(req.url)){
-            console.log(req.url);
-            req.pipe(request(req.url)).pipe(resp);
-        
-            // var x = request(req.url);
-            // req.pipe(x);
-            // x.pipe(resp);
-            // var url = req.url;
-            // var newReq  = request(url);
-            // newReq.pipe(resp);
-            // req.pipe(request(url)).pipe(resp);
-            // resp.send('<h1>Hello world</h1>');
+            // console.log(req.url);
+            addRequestToLog(req.url);
+            let newReq = request(req.url, function (error, response, body) {
+                console.log('url: '+ req.url + '\nlength: '+ response.headers['content-length']+'\n\n')
+                // increaseWebsiteDataReceived(req.url, response.headers['content-length']);
+                increaseTotalDataReceived(response.headers['content-length']);
+                // if(bool){
+                //     console.log(response.headers['content-length']);
+                //     bool = false;
+                // }
+            });
+
+            req.pipe(newReq).pipe(resp);
+        } else {
+            next();
         }
-        next();
 
         // resp.send('<h1>Hello world</h1>');
     });
-    
+
+    app.get('/get_request_log', function (req, resp) {
+        fs.readFile('./express/request_log.txt', function(err, buf) {
+            if(err) console.log(err);
+            resp.send(buf.toString());
+        });
+    });
+
+    app.get('/get_total_data_received', function (req, resp) {
+        fs.readFile('./express/total_data_received.txt', function(err, buf) {
+            if(err) console.log(err);
+            resp.send(buf.toString());
+        });
+    });
+
     app.get('/get_groups', function (req, resp) {
         fs.readFile('./express/groups.txt', function(err, buf) {
             if(err) console.log(err);
@@ -142,7 +201,7 @@ module.exports = () => {
                 groups: groups,
                 websites: websites
             };
-            fs.writeFile('./express/groups.txt', JSON.stringify(obj), function(err, data){
+            fs.writeFile('./express/groups.txt', JSON.stringify(obj), function(err){
                 if(err) console.log(err);
                 resp.send(JSON.stringify({msg: 'ok'}));
             });
@@ -164,7 +223,7 @@ module.exports = () => {
                 groups: groups,
                 websites: websites
             };
-            fs.writeFile('./express/groups.txt', JSON.stringify(obj), function(err, data){
+            fs.writeFile('./express/groups.txt', JSON.stringify(obj), function(err){
                 if(err) console.log(err);
                 resp.send(JSON.stringify({msg: 'ok'}));
             });
@@ -183,7 +242,7 @@ module.exports = () => {
                 groups: groups,
                 websites: removedWebsites
             };
-            fs.writeFile('./express/groups.txt', JSON.stringify(obj), function(err, data){
+            fs.writeFile('./express/groups.txt', JSON.stringify(obj), function(err){
                 if(err) console.log(err);
                 resp.send(JSON.stringify({msg: 'ok'}));
             });
@@ -202,7 +261,7 @@ module.exports = () => {
                 groups: removedGroups,
                 websites: websites
             };
-            fs.writeFile('./express/groups.txt', JSON.stringify(obj), function(err, data){
+            fs.writeFile('./express/groups.txt', JSON.stringify(obj), function(err){
                 if(err) console.log(err);
                 resp.send(JSON.stringify({msg: 'ok'}));
             });
@@ -224,7 +283,7 @@ module.exports = () => {
                 groups: groups,
                 websites: websites
             };
-            fs.writeFile('./express/groups.txt', JSON.stringify(obj), function(err, data){
+            fs.writeFile('./express/groups.txt', JSON.stringify(obj), function(err){
                 if(err) console.log(err);
                 resp.send(JSON.stringify({msg: 'ok'}));
             });
@@ -245,7 +304,7 @@ module.exports = () => {
                 groups: groups,
                 websites: websites
             };
-            fs.writeFile('./express/groups.txt', JSON.stringify(obj), function(err, data){
+            fs.writeFile('./express/groups.txt', JSON.stringify(obj), function(err){
                 if(err) console.log(err);
                 resp.send(JSON.stringify({msg: 'ok'}));
             });
@@ -304,7 +363,7 @@ module.exports = () => {
 //         }
 //     ]
 // };
-// fs.writeFile('./express/groups.txt', JSON.stringify(obj), function(err, data){
+// fs.writeFile('./express/groups.txt', JSON.stringify(obj), function(err){
 //     if(err) console.log(err);
 //     console.log("Successfully Written to File.");
 // });

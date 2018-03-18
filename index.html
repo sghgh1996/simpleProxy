@@ -6,7 +6,10 @@
     <link rel="stylesheet" href="index.css"/>
 </head>
 <body>
-<h2 style="text-align: center">my node proxy</h2>
+<h2 style="text-align: center">my proxy</h2>
+<div class="section" data-div="total-data">
+    <h4 style="text-align: center">0 Bytes</h4>
+</div>
 <div class="section">
     <div class="column" data-div="groups-div">
         groups
@@ -34,9 +37,23 @@ and Electron <script>document.write(process.versions.electron)</script>.
         var websitesDiv = $('div[data-div="websites-div"]');
         var websiteDiv = $('div[data-div="website-div"]');
         var groupDiv = $('div[data-div="group-div"]');
+        var totalDataPart = $('div[data-div="total-data"] h4');
+
+        setInterval(function () {
+            $.ajax({
+                url: 'http://127.0.0.1:8080/get_total_data_received',
+                type: "get",
+                contentType: "application/json",
+                success: function (response){
+                    totalDataPart.text(parseInt(response, 10) + ' Bytes');
+                },
+                error: function (error) {
+                    alert(JSON.stringify(error));
+                }
+            });
+        },1000);
 
         getAllGroups();
-
         // Get all groups.
         function getAllGroups() {
             $.ajax({
