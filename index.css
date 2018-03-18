@@ -58,8 +58,12 @@ li {
 .btnAdd{
     background-color: blue;
 }
-[data-div="log-data"]{
+div[data-div="log-data"]{
     height: 300px;
-    overflow-y: scroll;
+    overflow: auto;
+    /*overflow-x: hidden;*/
     border: 1px solid darkblue;
+    /*word-wrap: break-word;*/
+    width:90%;
+    margin:20px auto;
 }

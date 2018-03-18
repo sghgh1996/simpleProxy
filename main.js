@@ -25,23 +25,5 @@ app.on('ready', function() {
         fs.writeFile('./express/request_log.txt', '', function(err){
             if(err) console.log(err);
         });
-        fs.writeFile('./express/total_data_received.txt', 0, function(err){
-            if(err) console.log(err);
-        });
-        fs.readFile('./express/groups.txt', function(err, buf) {
-            if(err) console.log(err);
-            let websites = JSON.parse(buf.toString()).websites;
-            let groups = JSON.parse(buf.toString()).groups;
-            websites.map(function (w) {
-                w.dataReceived = 0;
-            });
-            let obj = {
-                groups: groups,
-                websites: websites
-            };
-            fs.writeFile('./express/groups.txt', JSON.stringify(obj), function(err){
-                if(err) console.log(err);
-            });
-        });
     })
 });

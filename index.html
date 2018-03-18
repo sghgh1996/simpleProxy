@@ -24,7 +24,7 @@
         choose a website
     </div>
 </div>
-<div class="section" data-div="log-data">
+<div data-div="log-data">
 
 </div>
 <div>
@@ -63,7 +63,7 @@ and Electron <script>document.write(process.versions.electron)</script>.
                 type: "get",
                 contentType: "application/json",
                 success: function (response){
-                    logPart.text(response);
+                    logPart.html('<p>'+response+'</p>');
                 },
                 error: function (error) {
                     alert(JSON.stringify(error));

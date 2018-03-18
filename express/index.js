@@ -53,6 +53,7 @@ module.exports = () => {
         if(amount !== undefined){
             fs.readFile('./express/groups.txt', function(err, buf) {
                 if(err) console.log(err);
+                console.log(buf.toString() + '\n\n');
                 let websites = JSON.parse(buf.toString()).websites;
                 let groups = JSON.parse(buf.toString()).groups;
                 websites.map(function (w) {
@@ -73,7 +74,7 @@ module.exports = () => {
     };
 
     const addRequestToLog = (url)=>{
-        fs.appendFile('./express/request_log.txt', url.toString()+'\n', function(err){
+        fs.appendFile('./express/request_log.txt', url.toString()+'<br/>', function(err){
             if(err) console.log(err);
         });
     };
