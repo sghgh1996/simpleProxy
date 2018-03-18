@@ -157,7 +157,7 @@ module.exports = () => {
             websites.push({
                 id:getWebsiteId(websites),
                 address: req.body.address,
-                group_id: req.body.group_id,
+                group_id: parseInt(req.body.group_id, 10),
                 dataReceived: 0
             });
             let obj = {
@@ -215,8 +215,9 @@ module.exports = () => {
             let groups = JSON.parse(buf.toString()).groups;
             websites.map(function (w) {
                 if(w.id === parseInt(req.body.id, 10)){
-                    w.address = req.body.address;
-                    w.group_id = req.body.group_id;
+                    if(req.body.address !== '' && req.body.address !== null)
+                        w.address = req.body.address;
+                    w.group_id = parseInt(req.body.group_id, 10);
                 }
             });
             let obj = {
@@ -236,7 +237,8 @@ module.exports = () => {
             let groups = JSON.parse(buf.toString()).groups;
             groups.map(function (g) {
                 if(g.id === parseInt(req.body.id, 10)){
-                    g.name = req.body.name;
+                    if(req.body.name !== '' && req.body.name !== null)
+                        g.name = req.body.name;
                 }
             });
             let obj = {

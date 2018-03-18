@@ -38,15 +38,23 @@ li {
 .groupItem:hover{
     cursor: pointer;
 }
+.websiteItem:hover{
+    cursor: pointer;
+}
+.btn{
+    border-radius: 2px;
+    padding:5px;
+    display: inline-block;
+}
+.btn:hover{
+    cursor: pointer;
+}
 .btnDelete{
     background-color: red;
-    border-radius: 2px;
 }
 .btnEdit{
     background-color: forestgreen;
-    border-radius: 2px;
 }
 .btnAdd{
     background-color: blue;
-    border-radius: 2px;
 }

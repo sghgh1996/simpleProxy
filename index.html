@@ -9,23 +9,23 @@
 <h2 style="text-align: center">my node proxy</h2>
 <div class="section">
     <div class="column" data-div="groups-div">
-        col1
+        groups
     </div><!--
     --><div class="column" data-div="group-div">
-        col2
+        choose a group
     </div><!--
     --><div class="column" data-div="websites-div">
-        col3
+        choose a group
     </div><!--
     --><div class="column" data-div="website-div">
-        col4
+        choose a website
     </div>
 </div>
-<div id="div-websites"></div>
-
+<div>
 We are using node <script>document.write(process.versions.node)</script>,
 Chrome <script>document.write(process.versions.chrome)</script>,
 and Electron <script>document.write(process.versions.electron)</script>.
+</div>
 <script type="text/javascript">
     window.$ = window.jQuery = require('jquery');
     $(document).ready(function () {
@@ -35,24 +35,34 @@ and Electron <script>document.write(process.versions.electron)</script>.
         var websiteDiv = $('div[data-div="website-div"]');
         var groupDiv = $('div[data-div="group-div"]');
 
+        getAllGroups();
+
         // Get all groups.
-        $.ajax({
-            url: 'http://127.0.0.1:8080/get_groups',
-            type: "get",
-            contentType: "application/json",
-            success: function (response){
-                let resultHtml = '<h5>Groups List</h5><ul>';
-                $.each(JSON.parse(response), function(key, value) {
-                    resultHtml += '<li class="groupItem" data-group-id="'+value.id+'">'+value.name+'</li>';
-                });
-                resultHtml += '</ul>';
-                groupsDiv.html(resultHtml);
-                addEventsForGroupItems();
-            },
-            error: function (error) {
-                alert(JSON.stringify(error));
-            }
-        });
+        function getAllGroups() {
+            $.ajax({
+                url: 'http://127.0.0.1:8080/get_groups',
+                type: "get",
+                contentType: "application/json",
+                success: function (response){
+                    let resultHtml = '<h5>Groups List</h5><ul>';
+                    $.each(JSON.parse(response), function(key, value) {
+                        resultHtml += '<li class="groupItem" data-group-id="'+value.id+'">'+value.name+'</li>';
+                    });
+                    resultHtml += '</ul>';
+
+                    resultHtml += '<br/><div>';
+                    resultHtml += '<span>name: </span><input name="name" data-input="add-group-name"/>';
+                    resultHtml += '</div>';
+                    resultHtml += '<div class="btn btnAdd" data-div="add-group">Add</div><br/><br/>';
+
+                    groupsDiv.html(resultHtml);
+                    addEventsForGroupItems();
+                },
+                error: function (error) {
+                    alert(JSON.stringify(error));
+                }
+            });
+        }
 
 //        For dynamically added DOM
         function addEventsForGroupItems() {
@@ -70,7 +80,19 @@ and Electron <script>document.write(process.versions.electron)</script>.
                             resultHtml += '<li class="websiteItem" data-website-id="'+value.id+'">'+value.address+'</li>';
                         });
                         resultHtml += '</ul>';
+
+                        resultHtml += '<br/><br/><div>';
+                        resultHtml += '<span>address: without http and www, like isna.ir</span><input name="address" data-input="add-website-address"/>';
+                        resultHtml += '</div>';
+                        resultHtml += '<div>';
+                        resultHtml += '<span>group: </span><span data-span="add-website-groups-span"></span>';
+                        resultHtml += '</div>';
+                        resultHtml += '<div class="btn btnAdd" data-div="add-website">Add</div><br/><br/>';
+
                         websitesDiv.html(resultHtml);
+
+                        addGroupsDropdown($('span[data-span="add-website-groups-span"]'), 'add', parseInt(groupId, 10));
+                        addEventsForWebsiteItems();
                     },
                     error: function (error) {
                         alert(JSON.stringify(error));
@@ -81,23 +103,77 @@ and Electron <script>document.write(process.versions.electron)</script>.
                     type: "get",
                     contentType: "application/json",
                     success: function (response){
-                        let resultHtml = '<h5>'+groupName+'</h5>';
+                        let resultHtml = '<h5>Group: '+groupName+'</h5>';
                         let group = JSON.parse(response);
                         resultHtml += '<p>Data Usage:<br/>'+group.dataReceived+' Bytes</p>';
 
-                        resultHtml += '<div class="btnDelete" data-div="delete-group" data-group-id="'+group.id+'">Delete</div>';
+                        resultHtml += '<div class="btn btnDelete" data-div="delete-group" data-group-id="'+group.id+'">Delete</div><br/><br/>';
 
                         resultHtml += '<div>';
                         resultHtml += '<span>name: </span><input name="name" data-input="edit-group-name"/>';
                         resultHtml += '</div>';
-                        resultHtml += '<div class="btnEdit" data-div="edit-group" data-group-id="'+group.id+'">Edit</div>';
-
-                        resultHtml += '<div>';
-                        resultHtml += '<span>name: </span><input name="name" data-input="add-group-name"/>';
-                        resultHtml += '</div>';
-                        resultHtml += '<div class="btnAdd" data-div="add-group" data-group-id="'+group.id+'">Add</div>';
+                        resultHtml += '<div class="btn btnEdit" data-div="edit-group" data-group-id="'+group.id+'">Edit</div><br/><br/>';
 
                         groupDiv.html(resultHtml);
+                        addEventForGroupForm();
+                    },
+                    error: function (error) {
+                        alert(JSON.stringify(error));
+                    }
+                });
+            });
+            $('div[data-div="add-group"]').on('click', function () {
+                let request = {
+                    name: $('input[data-input="add-group-name"]').val()
+                };
+                $.ajax({
+                    url: 'http://127.0.0.1:8080/add_group',
+                    type: "post",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify(request),
+                    success: function (response){
+                        alert('The group added Successfully.');
+                        resetPage();
+                    },
+                    error: function (error) {
+                        alert(JSON.stringify(error));
+                    }
+                });
+            });
+        }
+
+//        For dynamically added DOM
+        function addEventForGroupForm() {
+            $('div[data-div="delete-group"]').on('click', function () {
+                let groupId = $(this).attr('data-group-id');
+                $.ajax({
+                    url: 'http://127.0.0.1:8080/delete_group/'+groupId,
+                    type: "delete",
+                    contentType: "application/json",
+                    success: function (response){
+                        alert('The group deleted Successfully.');
+                        resetPage();
+                    },
+                    error: function (error) {
+                        alert(JSON.stringify(error));
+                    }
+                });
+            });
+            $('div[data-div="edit-group"]').on('click', function () {
+                let request = {
+                    name: $('input[data-input="edit-group-name"]').val(),
+                    id: $(this).attr('data-group-id')
+                };
+                $.ajax({
+                    url: 'http://127.0.0.1:8080/edit_group',
+                    type: "put",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify(request),
+                    success: function (response){
+                        alert('The group edited Successfully.');
+                        resetPage();
                     },
                     error: function (error) {
                         alert(JSON.stringify(error));
@@ -107,42 +183,132 @@ and Electron <script>document.write(process.versions.electron)</script>.
         }
 
 
+//        For dynamically added DOM
+        function addEventsForWebsiteItems() {
+//            Get all websites of a group after click on that.
+            $('li.websiteItem').on('click', function () {
+                let websiteId = $(this).attr('data-website-id');
+                let websiteAddress = $(this).text();
+                $.ajax({
+                    url: 'http://127.0.0.1:8080/get_website/'+websiteId,
+                    type: "get",
+                    contentType: "application/json",
+                    success: function (response){
+                        let resultHtml = '<h5>Website: '+websiteAddress+'</h5>';
+                        let website = JSON.parse(response);
+                        resultHtml += '<p>Data Usage:<br/>'+website.dataReceived+' Bytes</p>';
 
+                        resultHtml += '<div class="btn btnDelete" data-div="delete-website" data-website-id="'+website.id+'">Delete</div><br/><br/>';
 
+                        resultHtml += '<div>';
+                        resultHtml += '<span>address: without http and www, like isna.ir</span><input name="address" data-input="edit-website-address" value="'+website.address+'"/>';
+                        resultHtml += '</div>';
+                        resultHtml += '<div>';
+                        resultHtml += '<span>group: </span><span data-span="edit-website-groups-span"></span>';
+                        resultHtml += '</div>';
+                        resultHtml += '<div class="btn btnEdit" data-div="edit-website" data-website-id="'+website.id+'">Edit</div><br/><br/>';
 
-        $('#websites').on('click', function () {
+                        websiteDiv.html(resultHtml);
+                        addGroupsDropdown($('span[data-span="edit-website-groups-span"]'), 'edit', website.group_id);
+                        addEventForWebsiteForm();
+                    },
+                    error: function (error) {
+                        alert(JSON.stringify(error));
+                    }
+                });
+            });
+            $('div[data-div="add-website"]').on('click', function () {
+                let request = {
+                    address: $('input[data-input="add-website-address"]').val(),
+                    group_id: $('select[data-select="add-website-group"]').val()
+                };
+                $.ajax({
+                    url: 'http://127.0.0.1:8080/add_website',
+                    type: "post",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify(request),
+                    success: function (response){
+                        alert('The website added Successfully.');
+                        resetPage();
+                    },
+                    error: function (error) {
+                        alert(JSON.stringify(error));
+                    }
+                });
+            });
+        }
+
+        //        Add a select option for groups
+        function addGroupsDropdown(element, type, selectedValue) {
             $.ajax({
                 url: 'http://127.0.0.1:8080/get_groups',
                 type: "get",
                 contentType: "application/json",
                 success: function (response){
-                    $('#div-websites').text(response);
+                    let resultHtml = '<select data-select="'+type+'-website-group">';
+                    $.each(JSON.parse(response), function(key, value) {
+                        let selected = (selectedValue===value.id)?'selected':'';
+                        resultHtml += '<option '+selected+' value="'+value.id+'">'+value.name+'</option>';
+                    });
+                    resultHtml += '</select>';
+                    element.html(resultHtml);
                 },
                 error: function (error) {
-
+                    alert(JSON.stringify(error));
                 }
             });
-        });
-        $('#groups').on('click', function () {
-            let request = {
-                id:7,
-                address:'asriran2.com',
-                group_id: 2
-            };
-            $.ajax({
-                url: 'http://127.0.0.1:8080/edit_website',
-                type: "put",
-                contentType: "application/json",
-                dataType:'json',
-                data: JSON.stringify(request),
-                success: function (response){
+        }
 
-                },
-                error: function (error) {
-
-                }
+//        For dynamically added DOM
+        function addEventForWebsiteForm() {
+            $('div[data-div="delete-website"]').on('click', function () {
+                let websiteId = $(this).attr('data-website-id');
+                $.ajax({
+                    url: 'http://127.0.0.1:8080/delete_website/'+websiteId,
+                    type: "delete",
+                    contentType: "application/json",
+                    success: function (response){
+                        alert('The website deleted Successfully.');
+                        resetPage();
+                    },
+                    error: function (error) {
+                        alert(JSON.stringify(error));
+                    }
+                });
             });
-        });
+            $('div[data-div="edit-website"]').on('click', function () {
+                let request = {
+                    id: $(this).attr('data-website-id'),
+                    address: $('input[data-input="edit-website-address"]').val(),
+                    group_id: $('select[data-select="edit-website-group"]').val()
+                };
+                $.ajax({
+                    url: 'http://127.0.0.1:8080/edit_website',
+                    type: "put",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify(request),
+                    success: function (response){
+                        alert('The website edited Successfully.');
+                        resetPage();
+                    },
+                    error: function (error) {
+                        alert(JSON.stringify(error));
+                    }
+                });
+            });
+        }
+
+//        After change in db.
+        function resetPage() {
+            websiteDiv.empty();
+            websiteDiv.text('choose a website');
+            websitesDiv.empty();
+            groupDiv.empty();
+            groupsDiv.empty();
+            getAllGroups();
+        }
     });
 </script>
 </body>
