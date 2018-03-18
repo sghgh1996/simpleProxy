@@ -8,7 +8,7 @@
 <body>
 <h2 style="text-align: center">my proxy</h2>
 <div class="section" data-div="total-data">
-    <h4 style="text-align: center">0 Bytes</h4>
+    <h3 style="text-align: center">0 Bytes</h3>
 </div>
 <div class="section">
     <div class="column" data-div="groups-div">
@@ -24,6 +24,9 @@
         choose a website
     </div>
 </div>
+<div class="section" data-div="log-data">
+
+</div>
 <div>
 We are using node <script>document.write(process.versions.node)</script>,
 Chrome <script>document.write(process.versions.chrome)</script>,
@@ -37,7 +40,8 @@ and Electron <script>document.write(process.versions.electron)</script>.
         var websitesDiv = $('div[data-div="websites-div"]');
         var websiteDiv = $('div[data-div="website-div"]');
         var groupDiv = $('div[data-div="group-div"]');
-        var totalDataPart = $('div[data-div="total-data"] h4');
+        var totalDataPart = $('div[data-div="total-data"] h3');
+        var logPart = $('div[data-div="log-data"]');
 
         setInterval(function () {
             $.ajax({
@@ -52,6 +56,20 @@ and Electron <script>document.write(process.versions.electron)</script>.
                 }
             });
         },1000);
+
+        setInterval(function () {
+            $.ajax({
+                url: 'http://127.0.0.1:8080/get_request_log',
+                type: "get",
+                contentType: "application/json",
+                success: function (response){
+                    logPart.text(response);
+                },
+                error: function (error) {
+                    alert(JSON.stringify(error));
+                }
+            });
+        },500);
 
         getAllGroups();
         // Get all groups.

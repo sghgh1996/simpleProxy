@@ -95,27 +95,21 @@ module.exports = () => {
         console.log('listening on *:' + port);
     });
 
-    // let bool = true;
     app.all('*', function (req, resp, next) {
         if(checkReservedUrl(req.url)){
-            // console.log(req.url);
             addRequestToLog(req.url);
             let newReq = request(req.url, function (error, response, body) {
-                console.log('url: '+ req.url + '\nlength: '+ response.headers['content-length']+'\n\n')
-                // increaseWebsiteDataReceived(req.url, response.headers['content-length']);
-                increaseTotalDataReceived(response.headers['content-length']);
-                // if(bool){
-                //     console.log(response.headers['content-length']);
-                //     bool = false;
-                // }
+                // console.log('url: '+ req.url + '\nlength: '+ response.headers['content-length']+'\n\n')
+                if(response.headers['content-length'] !== undefined){
+                    increaseWebsiteDataReceived(req.url, response.headers['content-length']);
+                    increaseTotalDataReceived(response.headers['content-length']);   
+                }
             });
 
             req.pipe(newReq).pipe(resp);
         } else {
             next();
         }
-
-        // resp.send('<h1>Hello world</h1>');
     });
 
     app.get('/get_request_log', function (req, resp) {
@@ -311,59 +305,3 @@ module.exports = () => {
         });
     });
 };
-
-
-
-
-
-
-// let obj = {
-//     groups:[
-//         {name:'work',id: 1},
-//         {name:'sport',id:2},
-//         {name:'news',id:3},
-//         {name:'fun',id:4}
-//     ],
-//     websites:[
-//         {
-//             id:1,
-//             address:'isna.ir',
-//             group_id:3,
-//             dataReceived:0
-//         },
-//         {
-//             id:2,
-//             address:'iranestekhdam.ir',
-//             group_id:1,
-//             dataReceived:0
-//         },
-//         {
-//             id:3,
-//             address:'varzesh3.com',
-//             group_id:2,
-//             dataReceived:0
-//         },
-//         {
-//             id:4,
-//             address:'farsnews.com',
-//             group_id:3,
-//             dataReceived:0
-//         },
-//         {
-//             id:5,
-//             address:'beytoote.com',
-//             group_id:4,
-//             dataReceived:0
-//         },
-//         {
-//             id:6,
-//             address:'khabarvarzeshi.com',
-//             group_id:2,
-//             dataReceived:0
-//         }
-//     ]
-// };
-// fs.writeFile('./express/groups.txt', JSON.stringify(obj), function(err){
-//     if(err) console.log(err);
-//     console.log("Successfully Written to File.");
-// });
