@@ -25,5 +25,8 @@ app.on('ready', function() {
         fs.writeFile('./express/request_log.txt', '', function(err){
             if(err) console.log(err);
         });
+        fs.writeFile('./express/total_data_received.txt', 0, function(err){
+            if(err) console.log(err);
+        });
     })
 });
